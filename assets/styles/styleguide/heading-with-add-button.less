@@ -1,0 +1,24 @@
+.heading-with-add-button() {
+  position: relative;
+  padding-right: 40px;
+  .add-button {
+    .btn-reset();
+    transition: all 250ms;
+    position: absolute;
+    bottom: -10px;
+    right: 0;
+    font-size: 24px;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    color: @text-muted;
+    cursor: pointer;
+    &:hover {
+      color: @brand-accent;
+    }
+    &:active {
+      color: darken(@brand-accent, 10%);
+    }
+  }
+}

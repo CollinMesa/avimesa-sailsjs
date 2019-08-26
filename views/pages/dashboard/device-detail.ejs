@@ -1,0 +1,143 @@
+<div id="device-detail" v-cloak>
+  <masthead></masthead>
+  <div class="container-fluid pb-5">
+    <h5 class="pt-4">
+      <a class="text-muted" href="/devices">Devices</a>
+      <span class="text-muted d-inline-block pl-2 pr-2"><i class="fa fa-angle-right"></i></span>
+      <strong>{{device.name}}</strong>&nbsp;&nbsp;({{device.location}})
+    </h5>
+    <hr/>
+    <div class="bg-light p-4">
+      <div class="device-info">
+        <div class="device-image">
+          <img alt="Avimesa 1000" src="/images/avimesa-1000.png"/>
+        </div>
+        <table class="device-details-table">
+          <tr>
+            <th scope="col">Name:</th>
+            <td><strong>{{device.name}}</strong></td>
+          </tr>
+          <tr>
+            <th scope="col">Location:</th>
+            <td><strong>{{device.location}}</strong></td>
+          </tr>
+          <tr>
+            <th scope="col">Device ID:</th>
+            <td><strong>{{device.deviceId}}</strong></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <h5 class="heading-with-add-button pt-5">
+      <strong>Sensors</strong>
+      <a class="add-button btn" role="button" :href="'/devices/'+encodeURIComponent(device.deviceId)+'/sensors/new'" :class="sensors.length >= 7 ? 'disabled':''">
+        <i class="fa fa-plus-circle"></i>
+      </a>
+    </h5>
+    <table v-if="sensors.length > 0" class="sensors-table table table-striped table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Unit of measurement</th>
+          <th scope="col">Location</th>
+          <th scope="col">Channel no.&nbsp;&nbsp;<bootstrap-tooltip text="The channel where the sensor is connected to the Avimesa 1000"><i class="fa fa-info-circle text-muted"></i></bootstrap-tooltip></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="sensor in sensors" @click="goto('/devices/'+encodeURIComponent(device.deviceId)+'/sensors/'+encodeURIComponent(sensor.id))">
+          <td scope="row">{{sensor.name}}</td>
+          <td scope="row">{{sensor.displayUnit}}</td>
+          <td scope="row" :class="sensor.locationDescription.length === 0 ? 'text-muted' : ''">{{sensor.locationDescription || 'None'}}</td>
+          <td scope="row">{{sensor.channelIndex+1}}</td>
+          <td scope="row">
+            <i class="fa fa-angle-right text-black-50 float-right"></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="bg-light text-center p-4 mb-4" v-else>
+      <div class="warning-text text-muted">
+        <p>This device doesn't have any sensors configured. Before <a :href="'/devices/'+encodeURIComponent(device.deviceId)+'/sensors/new'">adding one</a>, please note that <strong class="text-dark">any Avimesa device managed through this dashboard will have its config file and device driver script auto-generated and uploaded to the device</strong>.</p>
+        <p>If you have uploaded custom files to this device in the past, these files will be overridden as soon as you configure a sensor via the dashboard. (If you’re not sure, ask your Avimesa developer whether it is safe to proceed.)</p>
+      </div>
+    </div>
+    <h5 class="heading-with-add-button pt-5">
+      <strong>Alerts</strong>
+      <a class="add-button btn" role="button" :href="'/devices/'+encodeURIComponent(device.deviceId)+'/alerts/new'" v-if="sensors.length > 0">
+        <i class="fa fa-plus-circle"></i>
+      </a>
+    </h5>
+    <div class="bg-light text-center p-4 mb-4" v-if="sensors.length === 0">
+      <em>In order to configure alerts for this device, you must first <a :href="'/devices/'+encodeURIComponent(device.deviceId)+'/sensors/new'">add a sensor</a>.</em>
+    </div>
+    <table class="alerts-table table table-striped"  v-else-if="alerts.length > 0">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Channels</th>
+          <th scope="col">Recipients</th>
+          <th scope="col">Last triggered</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="alert in alerts">
+          <td>{{alert.description}}</td>
+          <td>{{alert.displayChannels}}</td>
+          <td>{{alert.displayRecipients}}&ensp;
+            <bootstrap-tooltip placement="top" :text="alert.tooltipHtml" data-html="true" v-if="alert.recipients.length > 2"><i class="fa fa-info-circle text-muted"></i></bootstrap-tooltip>
+          </td>
+          <td>
+            <js-timestamp :at="alert.lastTriggeredAt" v-if="alert.lastTriggeredAt"></js-timestamp>
+            <span class="text-muted" v-else>Never</span>
+          </td>
+          <td>
+            <div class="dropdown dropleft">
+              <span class="clickable-cog" :id="'alert-options'+alert.id" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-cog text-muted"></i></span>
+              <div class="dropdown-menu dropdown-menu-left" :aria-labelledby="'alert-options'+alert.id">
+                <button class="dropdown-item" @click="clickRemoveAlert(alert)"><i class="fa fa-trash-o"></i> Remove alert</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="bg-light text-center p-4 mb-4" v-else>
+      <em>There are no alerts configured for this device. Would you like to <a :href="'/devices/'+encodeURIComponent(device.deviceId)+'/alerts/new'">add one</a>?</em>
+    </div>
+
+    <h5 class="pt-5"><strong>Device code</strong></h5>
+    <div class="bg-light p-4">
+      <p>The following (read-only) code has been auto-generated based on your current device configuration in this dashboard. It will be automatically uploaded any time you make changes to this device.</p>
+      <p><a type="button" data-toggle="collapse" href="#auto-generated-config-code-collapse" role="button" aria-expanded="false" aria-controls="auto-generated-config-code-collapse">Preview device config&nbsp;&nbsp;<i class="fa fa-angle-down"></i></a></p>
+      <div class="collapse" id="auto-generated-config-code-collapse">
+        <p class="mb-0"><strong>config.json</strong></p>
+        <pre class="bg-dark rounded p-4 mb-5"><code class="text-light">{{deviceConfigAsString}}</code></pre>
+      </div>
+      <p><a type="button" data-toggle="collapse" href="#auto-generated-script-code-collapse" role="button" aria-expanded="false" aria-controls="auto-generated-script-code-collapse">Preview device driver script&nbsp;&nbsp;<i class="fa fa-angle-down"></i></a></p>
+      <div class="collapse" id="auto-generated-script-code-collapse">
+        <p class="mb-0"><strong>script.js</strong></p>
+        <pre class="bg-dark rounded p-4"><code class="text-light">{{deviceDriverScriptAsString}}</code></pre>
+      </div>
+    </div>
+  </div>
+  <modal class="remove-modal" v-if="modal==='remove-alert'" @close="closeModal()" v-cloak>
+    <div class="modal-header">
+      <h5 class="modal-title">Remove alert</h5>
+      <hr/>
+    </div>
+    <ajax-form action="destroyOneAlert" :syncing.sync="syncing" :cloud-error.sync="cloudError" :form-data="formData" :form-rules="formRules" :form-errors.sync="formErrors" @submitted="submittedRemoveAlert()">
+      <div class="modal-body">
+        <p>Are you sure you want to remove the "{{formData._alert.description}}" alert?</p>
+        <p class="text-danger" v-if="cloudError">An error occured while processing your request. Please check your information and try again, or <a href="/support">contact support</a> if the error persists.</p>
+      </div>
+      <div class="modal-footer flex-row-reverse justify-content-between">
+        <ajax-button :syncing="syncing" class="btn btn-danger">Submit</ajax-button>
+        <button type="button" data-dismiss="modal" class="btn btn-secondary">Never mind</button>
+      </div>
+    </ajax-form>
+  </modal>
+</div>
+
+<%- /* Expose server-rendered data as window.SAILS_LOCALS :: */ exposeLocalsToBrowser() %>

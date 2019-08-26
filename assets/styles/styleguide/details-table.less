@@ -1,0 +1,28 @@
+.details-table() {
+  tr {
+    th {
+      font-weight: @normal;
+      padding-right: 15px;
+    }
+  }
+  @media screen and (max-width: 800px) {
+    tr {
+      th {
+        padding-right: 0px;
+      }
+      th, td {
+        display: block;
+        padding-bottom: 0px;
+        padding-top: 0px;
+      }
+      td:last-child {
+        padding-bottom: 20px;
+      }
+      &:last-child {
+        td:last-child {
+          padding-bottom: 20px;
+        }
+      }
+    }
+  }
+}

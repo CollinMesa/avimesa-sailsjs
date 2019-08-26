@@ -1,0 +1,59 @@
+<div id="users-overview" v-cloak>
+  <masthead></masthead>
+  <div class="container-fluid">
+    <h5 class="heading-with-add-button pt-4">
+      <strong>Users</strong>
+      <a class="add-button" href="/users/new" role="button">
+        <i class="fa fa-plus-circle"></i>
+      </a>
+    </h5>
+    <hr/>
+    <table class="users-table table table-striped" v-if="!(users.length === 1 && users[0].id === me.id)">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col" class="">Email address</th>
+          <th scope="col" class="d-none d-lg-block">Phone</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="user in users">
+          <td>{{ user.fullName }}</td>
+          <td class="">{{ user.emailAddress }}</td>
+          <td class="d-none d-lg-block" :class="!user.phone ? 'text-muted' : ''">{{ user.phone || 'Not set' }}</td>
+          <td>
+            <div class="dropdown dropleft" v-if="user.id !== me.id">
+              <span class="clickable-cog" :id="'user-options-'+ user.id" data-toggle="dropdown" aria-haspopup="true"><i class="fa fa-cog text-muted"></i></span>
+              <div class="dropdown-menu dropdown-menu-left" :aria-labelledby="'user-options-'+ user.id">
+                <button class="dropdown-item" @click="clickRemoveUser(user)"><i class="fa fa-trash-o"></i> Remove user</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="bg-light text-center p-4 mb-4" v-else>
+      <em>You're the only one here! Why not <a href="/users/new">add another user</a>?</em>
+    </div>
+  </div>
+
+  <modal class="remove-modal" v-if="modal === 'remove-user'" @close="closeModal()" v-cloak>
+    <div class="modal-header">
+      <h5 class="modal-title">Remove user</h5>
+      <hr/>
+    </div>
+    <ajax-form action="destroyOneUser" :syncing.sync="syncing" :cloud-error.sync="cloudError" :form-data="formData" :form-rules="formRules" :form-errors.sync="formErrors" @submitted="submittedRemoveUserForm()">
+      <div class="modal-body">
+        <p>Are you sure you want to remove <strong>{{ formData._user.fullName }}</strong>?</p>
+        <p>They will no longer be able to access this Avimesa dashboard.</p>
+        <p class="text-danger" v-if="cloudError">An error occured while processing your request. Please check your information and try again, or <a href="/support">contact support</a> if the error persists.</p>
+      </div>
+      <div class="modal-footer flex-row-reverse justify-content-between">
+        <ajax-button :syncing="syncing" class="btn btn-danger">Proceed</ajax-button>
+        <button type="button" data-dismiss="modal" class="btn btn-secondary">Never mind</button>
+      </div>
+    </ajax-form>
+  </modal>
+</div>
+<%- /* Expose server-rendered data as window.SAILS_LOCALS :: */ exposeLocalsToBrowser() %>

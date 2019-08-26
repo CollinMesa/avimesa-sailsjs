@@ -1,0 +1,226 @@
+@side-nav-width: 240px;
+@footer-height: 50px;
+@container-md-max-width: 1100px;
+
+[v-cloak] { display: none; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  &.logged-in {
+    padding-left: @side-nav-width;
+  }
+}
+
+#page-wrap {
+  height: 100%;
+  /* lesshint-disable */height: auto !important;/* lesshint-enable */
+  // ^^The above is to disable "importantRule" and "duplicateProperty" rules.
+  min-height: 100%;
+  position: relative;
+  padding-bottom: @footer-height;
+
+  header {
+    .logo {
+      height: 30px;
+    }
+    a {
+      cursor: pointer;
+    }
+    .dropdown-menu.account-menu {
+      left: auto;
+      right: 0px;
+    }
+  }
+  .logged-in-navbar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: @side-nav-width;
+    padding-left: 40px;
+    background-color: @accent-black;
+    .logged-in-nav-brand {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      left: 0;
+      top: 10px;
+      padding-top: 5px;
+      padding-right: 5px;
+      padding-bottom: 5px;
+      padding-left: 5px;
+      img {
+        display: block;
+        width: 100%;
+      }
+    }
+    .mobile-nav-button {
+      display: none;
+      i {
+        color: @brand-accent;
+      }
+    }
+    .logged-in-nav {
+      @side-nav-padding-x: 20px;
+      height: 100%;
+      background-color: @bg-lt-gray;
+      padding-top: 15px;
+      padding-bottom: 15px;
+      .logged-in-user, .section-nav {
+        a {
+          color: inherit;
+          text-decoration: none;
+          &:hover {
+            color: inherit;
+            text-decoration: none;
+          }
+          &.current-section {
+            color: @brand-accent;
+            &:hover {
+              cursor: default;
+              color: @brand-accent;
+            }
+          }
+        }
+      }
+      .logged-in-user {
+        padding-left: @side-nav-padding-x;
+        padding-right: @side-nav-padding-x;
+        .app-name {
+          font-size: 20px;
+        }
+        .account-nav {
+          a {
+            .hover-icon {
+              opacity: 0;
+            }
+            &:hover:not(.current-section) {
+              color: @brand-accent;
+              .hover-icon {
+                opacity: 1;
+              }
+            }
+          }
+        }
+      }
+      .section-nav {
+        line-height: 30px;
+        a {
+          padding-left: @side-nav-padding-x;
+          padding-right: @side-nav-padding-x;
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+          }
+          &.current-section {
+            font-weight: @bold;
+            &:hover {
+              background-color: inherit;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+#page-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  height: @footer-height;
+  width: 100%;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  .xs-only {
+    display: none;
+  }
+}
+
+body.detected-mobile {
+  // Above and beyond the media queries below, this selector (which relies on
+  // `parasails` automatically attaching this class, if appropriate) contains
+  // styles intended to be activated specifically when loaded from a recognized
+  // mobile device, regardless of viewport dimensions.  This includes tablet
+  // devices (like the iPad) as well as handset devices (like the iPhone).
+  // …
+}
+
+@media (max-width: 800px) {
+  #page-wrap {
+    padding-bottom: 75px;
+    #page-footer {
+      height: 75px;
+      .copy, .nav {
+        width: 100%;
+        display: block;
+        text-align: center;
+        .nav-item {
+          display: inline-block;
+          a {
+            display: inline-block;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 750px) {
+  html, body {
+    &.logged-in {
+      padding-left: 0px;
+      padding-top: 50px;
+    }
+  }
+  #page-wrap {
+    padding-bottom: @footer-height;
+    .logged-in-navbar {
+      height: 50px;
+      width: 100%;
+      z-index: 99999;
+      .logged-in-nav-brand {
+        top: 5px;
+      }
+      .mobile-nav-button {
+        .btn-reset();
+        position: absolute;
+        display: block;
+        top: 5px;
+        right: 0;
+        height: 40px;
+        width: 30px;
+        text-align: center;
+        line-height: 40px;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 30px;
+        .focal-point {
+          position: absolute;
+          opacity: 0;
+          width: 1px;
+          height: 1px;
+          right: -9999px;
+          top: -9999px;
+        }
+      }
+      .logged-in-nav {
+        display: none;
+      }
+    }
+    .logged-in-nav-mobile {
+      z-index: 99999;
+    }
+    #page-footer {
+      height: @footer-height;
+      .nav {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  #page-wrap {
+    padding-bottom: 85px;
+  }
+}

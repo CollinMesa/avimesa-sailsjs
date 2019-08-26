@@ -1,0 +1,60 @@
+<div id="add-user" v-cloak>
+  <div class="container-fluid">
+    <masthead></masthead>
+    <h5 class="pt-4">
+      <a class="text-muted" href="/users">Users</a>
+      <span class="text-muted d-inline-block pl-2 pr-2"><i class="fa fa-angle-right"></i></span>
+      <strong>Add new user</strong>
+    </h5>
+    <hr/>
+    <div>
+      <ajax-form action="createUser" :syncing.sync="syncing" :cloud-error.sync="cloudError" :form-data="formData" :form-rules="formRules" :form-errors.sync="formErrors" @submitted="submittedForm()">
+        <div class="p-4 bg-light">
+          <div class="row mb-4">
+            <div class="col-md form-group">
+              <label for="input-full-name">Full name</label>
+              <input type="text" class="form-control" id="input-full-name" placeholder="Nikola Tesla" :class="[formErrors.fullName ? 'is-invalid' : '']" v-model="formData.fullName">
+              <div class="invalid-feedback" v-if="formErrors.fullName">Please enter a full name.</div>
+            </div>
+            <div class="col-md form-group">
+              <label for="input-email">Email address</label>
+              <input type="email" class="form-control" id="input-email" placeholder="nickyt@example.com" :class="[formErrors.emailAddress ? 'is-invalid' : '']" v-model="formData.emailAddress">
+              <div class="invalid-feedback" v-if="formErrors.emailAddress">Please enter a valid email address.</div>
+            </div>
+          </div>
+<!--           <div class="row mb-4">
+            <div class="col col-md-6 form-group">
+              <div class="d-flex justify-content-between px-0">
+                <label for="input-phone">Phone</label>
+                <small id="phone-help-text" class="text-muted pt-1">Optional: for SMS alerts</small>
+              </div>
+              <input type="tel" class="form-control" id="input-phone" placeholder="123-456-7890" aria-describedby="phone-help-text" v-model="formData.phone">
+            </div>
+          </div> -->
+          <hr/>
+          <div class="row my-4">
+            <div class="col-md form-group">
+              <label for="input-password">Temporary password</label>
+              <input type="password" class="form-control" id="input-password" placeholder="3lectricW!zard" :class="[formErrors.password ? 'is-invalid' : '']" v-model="formData.password">
+              <div class="invalid-feedback" v-if="formErrors.password">Please choose a password.</div>
+            </div>
+            <div class="col-md form-group">
+              <label for="confirm-password">Confirm password</label>
+              <input type="password" class="form-control" id="confirm-password" placeholder="3lectricW!zard" :class="[formErrors.confirmPassword ? 'is-invalid' : '']" v-model="formData.confirmPassword">
+              <div class="invalid-feedback" v-if="formErrors.confirmPassword">Please confirm your password.</div>
+            </div>
+          </div>
+          <p class="text-danger" v-if="Object.keys(formErrors).length > 0">Looks like some required information is missing or invalid. Please correct the errors above and try again.</p>
+          <p class="text-danger" v-if="cloudError==='emailAlreadyInUse'">It looks like there's already an account with your email address. If you forgot your password, you can recover it <a href="password/forgot">here</a>.</p>
+          <p class="text-danger" v-else-if="cloudError">An error occured while processing your request. Please check your information and try again, or <a href="/support">contact support</a> if the error persists.</p>
+          <hr/>
+          <div class="d-flex justify-content-between px-0">
+            <a role="button" href="/users" class="btn btn-secondary">Never mind</a>
+            <ajax-button :syncing="syncing" class="btn btn-primary">Add user</ajax-button>
+          </div>
+        </div>
+      </ajax-form>
+    </div>
+  </div>
+</div>
+<%- /* Expose server-rendered data as window.SAILS_LOCALS :: */ exposeLocalsToBrowser() %>

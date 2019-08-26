@@ -1,0 +1,101 @@
+<div id="add-alert" v-cloak>
+  <masthead></masthead>
+  <div class="container-fluid">
+    <h5 class="pt-4">
+      <a class="text-muted" href="/devices">Devices</a>
+      <span class="text-muted d-inline-block pl-2 pr-2"><i class="fa fa-angle-right"></i></span>
+      <a class="text-muted" :href="'/devices/'+encodeURIComponent(device.deviceId)">{{device.name}}&nbsp;&nbsp;({{device.location}})</a>
+      <span class="text-muted d-inline-block pl-2 pr-2"><i class="fa fa-angle-right"></i></span>
+      <strong>Add new alert</strong>
+    </h5>
+    <hr/>
+    <div class="p-4 bg-light mb-4">
+      <ajax-form action="createAlert" :syncing.sync="syncing" :cloud-error.sync="cloudError" :form-data="formData" :form-rules="formRules" :form-errors.sync="formErrors" @submitted="submittedForm()">
+        <div class="row">
+          <div class="col-md-8 form-group">
+            <div class="d-flex justify-content-between px-0">
+              <label for="alert-name">Name your alert</label>
+              <small id="alert-name-help-text" class="text-muted">A brief description (< 10 words)</small>
+            </div>
+            <input type="text" class="form-control" id="alert-name" v-model="formData.description" :class="[formErrors.description ? 'is-invalid' : '']" focus-first>
+            <div class="invalid-feedback">Please enter a description for this alert.</div>
+          </div>
+        </div>
+        <hr/>
+        <p class="d-flex justify-content-between">
+          <strong>Notification settings</strong>
+          <small id="add-new-notified" class="text-muted">Don't see the person you're looking for? Add them <a href="/users/new">here</a>.</small>
+        </p>
+        <p class="mb-1">Notify users</p>
+        <div class="form-group">
+          <div class="form-check form-check-inline mr-4" v-for="user in users" :key="'recipient-option-'+user.id">
+            <label :for="'recipient-'+user.id">
+              <input class="form-check-input" type="checkbox" :id="'recipient-'+user.id" :value="user.id" v-model="formData.recipients">
+              {{user.fullName}}
+            </label>
+          </div>
+          <p class="text-danger" v-if="formErrors.recipients"><small>Please select at least one recipient.</small></p>
+        </div>
+        <!-- <div class="d-flex justify-content-between px-0">
+          <span>Via which channels?</span>
+          <small id="channels-help-text" class="text-muted">SMS will only be sent to users with phone numbers in the system.</small>
+        </div>
+        <div class="form-group">
+          <div class="form-check form-check-inline">
+            <label for="notification-channel-email">
+              <input class="form-check-input" type="checkbox" id="notification-channel-email" :value="true" v-model="formData.enableEmailNotifications">
+              Email
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label for="notification-channel-sms">
+              <input class="form-check-input" type="checkbox" id="notification-channel-sms" :value="true" v-model="formData.enableSMSNotifications">
+              SMS
+            </label>
+          </div>
+        </div> -->
+        <hr/>
+        <p><strong>Alert conditions</strong></p>
+        <div class="condition-wrapper mb-2" v-for="(condition, index) in formData.conditions">
+          <label v-if="index === 0">When value for sensor</label>
+          <label v-else>and</label>
+          <div class="row">
+            <div class="col-md-7">
+              <select class="form-control" v-model="formData.conditions[index].sensor">
+                <option :value="undefined">Choose a sensor</option>
+                <option v-for="sensor in sensors" :value="sensor.id">{{sensor.name}}</option>
+              </select>
+            </div>
+            <div class="has-divider col-md-5">
+              <span class="divider">is</span>
+              <div class="row">
+                <div class="col pr-0">
+                  <select class="form-control" v-model="formData.conditions[index].comparisonOperator">
+                    <option value="<">Less than</option>
+                    <option value=">">Greater than</option>
+                  </select>
+                </div>
+                <div class="col pr-0">
+                  <input type="number" class="form-control" v-model="formData.conditions[index].value">
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="remove-button" @click="clickRemoveCondition(index)" v-if="formData.conditions.length > 1"><i class="fa fa-times"></i></button>
+        </div>
+        <p class="text-danger" v-if="formErrors.conditions"><small>Looks like there's some missing info in one of the conditions above.</small></p>
+        <p>
+          <button type="button" class="btn btn-link pl-0" @click="clickAddCondition()"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add condition</button>
+        </p>
+        <p class="text-danger" v-if="Object.keys(formErrors).length > 0">Looks like some required information is missing or invalid. Please correct the errors above and try again.</p>
+        <p class="text-danger" v-if="cloudError">An error occured while processing your request. Please check your information and try again, or <a href="/support">contact support</a> if the error persists.</p>
+        <hr/>
+        <div class="d-flex justify-content-between px-0">
+          <a role="button" href="/users" class="btn btn-secondary">Never mind</a>
+          <ajax-button :syncing="syncing" class="btn btn-primary">Add alert</ajax-button>
+        </div>
+      </ajax-form>
+    </div>
+  </div>
+</div>
+<%- /* Expose server-rendered data as window.SAILS_LOCALS :: */ exposeLocalsToBrowser() %>

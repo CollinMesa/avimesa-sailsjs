@@ -1,0 +1,65 @@
+<div id="edit-sensor" v-cloak>
+  <masthead></masthead>
+  <div class="container">
+    <h5 class="pt-4">
+      <a class="text-muted" href="/devices">Devices</a>
+      <span class="d-inline-block pr-2 pl-2"><i class="fa fa-angle-right"></i></span>
+      <a class="text-muted" :href="'/devices/'+encodeURIComponent(device.deviceId)">{{device.name}}&nbsp;&nbsp;({{device.location}})</a>
+      <span class="d-inline-block pr-2 pl-2"><i class="fa fa-angle-right"></i></span>
+      <a class="text-muted" :href="'/devices/'+encodeURIComponent(device.deviceId)+'/sensors/'+encodeURIComponent(sensor.id)">{{sensor.name}}</a>
+      <span class="d-inline-block pr-2 pl-2"><i class="fa fa-angle-right"></i></span>
+      <strong>Edit sensor</strong>
+    </h5>
+    <hr/>
+    <div class="p-4 bg-light">
+      <ajax-form action="updateOneSensor" :syncing.sync="syncing" :cloud-error.sync="cloudError" :form-data="formData" :form-rules="formRules" :form-errors.sync="formErrors" @submitted="submittedForm()">
+        <div class="row mb-3">
+          <div class="form-group col-md">
+            <label for="sensor-name" class="d-block">Sensor name<small class="text-muted d-inline-block float-right pt-1">For dashboard display</small></label>
+            <input type="text" class="form-control" id="sensor-name" placeholder="Coolant Prep System Temp" :class="[formErrors.name ? 'is-invalid' : '']" v-model="formData.name">
+            <div class="invalid-feedback" v-if="formErrors.name">Please enter a name for this sensor.</div>
+          </div>
+          <div class="form-group col-md">
+            <label for="unit-of-measurement" class="d-block">Unit of measurement</label>
+            <select class="form-control" id="unit-of-measurement" :class="[formErrors.unit ? 'is-invalid' : '']" v-model="formData.unit">
+              <option value="" disabled selected>Select a unit of measurement</option>
+              <option v-for="unit in units" :value="unit.base10Value">{{ unit.description }}</option>
+            </select>
+            <div class="invalid-feedback" v-if="formErrors.unit">Please select a unit of measurement for this sensor.</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-md">
+            <label for="location-description" class="d-block">Location description<small class="text-muted d-inline-block float-right pt-1">Optional</small></label>
+            <input type="text" class="form-control" id="location-description" placeholder="Thermo-well above blades" aria-describedby="location-description" v-model="formData.locationDescription">
+          </div>
+          <div class="form-group col-md">
+            <label for="measurement-display-name" class="d-block">Chart title<small class="text-muted d-inline-block float-right pt-1">Optional</small></label>
+            <input type="text" class="form-control" id="measurement-display-name" placeholder="Thermo-well Temperature" aria-describedby="measurement-display-name" v-model="formData.measurementDisplayName" optional>
+          </div>
+        </div>
+        <hr/>
+        <div class="row">
+          <div class="form-group col-md-3">
+            <label for="measurement-min-reading" class="d-block">Min reading</label>
+            <input type="number" step="any" id="measurement-min-reading" class="form-control" placeholder="-17.7778" aria-describedby="measurement-min-reading" :class="[formErrors.minReading ? 'is-invalid' : '']" v-model="formData.minReading">
+            <div class="invalid-feedback" v-if="formErrors.minReading">Please enter a minimum value.</div>
+          </div>
+          <div class="form-group col-md-3">
+            <label for="measurement-max-reading" class="d-block">Max reading</label>
+            <input type="number" step="any" id="measurement-max-reading" class="form-control" placeholder="148.889" aria-describedby="measurement-max-reading" :class="[formErrors.maxReading ? 'is-invalid' : '']" v-model="formData.maxReading">
+            <div class="invalid-feedback" v-if="formErrors.maxReading">Please enter a maximum value.</div>
+          </div>
+        </div>
+        <p class="text-danger" v-if="Object.keys(formErrors).length > 0">Looks like some required information is missing or invalid. Please correct the errors above and try again.</p>
+        <p class="text-danger" v-if="cloudError">An error occured while processing your request. Please check your information and try again, or <a href="/support">contact support</a> if the error persists.</p>
+        <hr/>
+        <div class="d-flex justify-content-between">
+          <a role="button" :href="'/devices/'+encodeURIComponent(this.device.deviceId)+'/sensors/'+encodeURIComponent(this.sensor.id)" class="btn btn-secondary">Never mind</a>
+          <ajax-button :syncing="syncing" class="btn btn-primary">Submit changes</ajax-button>
+        </div>
+      </ajax-form>
+    </div>
+  </div>
+</div>
+<%- /* Expose server-rendered data as window.SAILS_LOCALS :: */ exposeLocalsToBrowser() %>

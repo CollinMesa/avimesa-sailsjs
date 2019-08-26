@@ -1,0 +1,82 @@
+<div id="sensor-detail" v-cloak>
+  <masthead></masthead>
+  <div class="container-fluid">
+    <h5 class="pt-4">
+      <a class="text-muted" href="/devices">Devices</a>
+      <span class="d-inline-block pr-2 pl-2"><i class="fa fa-angle-right"></i></span>
+      <a class="text-muted" :href="'/devices/'+encodeURIComponent(device.deviceId)">{{device.name}}&nbsp;&nbsp;({{device.location}})</a>
+      <span class="d-inline-block pr-2 pl-2"><i class="fa fa-angle-right"></i></span>
+      <strong>{{sensor.name}}</strong>
+    </h5>
+    <hr/>
+    <div class="bg-light p-4">
+      <div class="sensor-info">
+        <div class="dropleft float-right">
+            <a type="button" data-toggle="dropdown">
+              <i class="fa fa-gear text-black-50 float-right pt-1"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a type="button" class="dropdown-item btn-light" :href="'/devices/'+encodeURIComponent(device.deviceId)+'/sensors/'+encodeURIComponent(sensor.id)+'/edit'"><i class="fa fa-pencil"></i> Edit sensor</a></li>
+                <li><button class="dropdown-item btn-light" @click="clickOpenRemoveModalButton(sensor)"><i class="fa fa-trash-o"></i> Remove sensor</button></li>
+              </ul>
+          </div>
+        <table class="sensor-details-table">
+          <!-- <tr>
+            <th scope="col">Avimesa device:</th>
+            <td><a :href="'/devices/'+encodeURIComponent(device.deviceId)">{{ device.name }}&emsp;<i class="fa fa-angle-right"></i></a></td>
+          </tr> -->
+          <tr>
+            <th scope="col">Analog channel no.</th>
+            <td><strong>{{sensor.channelIndex+1}}</strong></td>
+          </tr>
+          <tr>
+            <th scope="col">Unit of measurement:</th>
+            <td><strong>{{sensor.displayUnit}}</strong></td>
+          </tr>
+          <tr>
+            <th scope="col">Measurement range:</th>
+            <td><strong>{{sensor.minReading}} - {{sensor.maxReading}}</strong></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <h5 class="mt-4">
+      <strong>History</strong>
+    </h5>
+    <div class="bg-light p-4">
+      <p class="mb-0 text-center"><small>{{sensor.measurementDisplayName || sensor.displayUnit}}</small></p>
+      <line-chart :data="sensorChartData.data" :x-axis-labels="sensorChartData.labels" :hide-legend="true"></line-chart>
+    </div>
+    <h5 class="mt-4">
+      <strong>Alert history</strong>
+    </h5>
+    <div class="bg-light p-4 mb-4">
+      <div v-if="sensor.notifications.length > 0">
+        <p v-for="(notification, index) in sensor.notifications" :class="index === sensor.notifications.length - 1 ? 'mb-0' : ''">
+          <strong>{{notification.description}}</strong>&nbsp;sent to&nbsp;{{notification.displayRecipients}}&nbsp;via&nbsp;{{notification.displayChannels}}.&emsp;<small class="text-muted"><js-timestamp :at="notification.createdAt"></js-timestamp></small>
+        </p>
+      </div>
+      <div class="text-muted text-center" v-else>
+        <em>No alerts have been triggered for this sensor.</em>
+      </div>
+    </div>
+  </div>
+  <modal class="remove-modal" v-if="modal==='remove'" @close="closeRemoveModal()" v-cloak>
+    <div class="modal-header">
+      <h5 class="modal-title">Remove sensor</h5>
+      <hr/>
+    </div>
+    <ajax-form action="destroyOneSensor" :syncing.sync="syncing" :cloud-error.sync="cloudError" :form-data="formData" :form-rules="formRules" :form-errors.sync="formErrors" @submitted="submittedRemoveSensorForm()">
+      <div class="modal-body">
+        <p>Are you sure you want to remove <strong>{{ formData._sensor.name }}</strong>?</p>
+        <p>You will no longer be able to access data for this sensor.</p>
+        <p class="text-danger" v-if="cloudError">An error occured while processing your request. Please check your information and try again, or <a href="/support">contact support</a> if the error persists.</p>
+      </div>
+      <div class="modal-footer flex-row-reverse justify-content-between">
+        <ajax-button :syncing="syncing" class="btn btn-danger">Submit</ajax-button>
+        <button type="button" data-dismiss="modal" class="btn btn-secondary">Never mind</button>
+      </div>
+    </ajax-form>
+  </modal>
+</div>
+<%- /* Expose server-rendered data as window.SAILS_LOCALS :: */ exposeLocalsToBrowser() %>
